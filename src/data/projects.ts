@@ -10,11 +10,11 @@ export interface Project {
 }
 
 export const categories = [
-  { name: "Games", emoji: "🎮", count: 3 },
-  { name: "Creative Coding", emoji: "🎨", count: 3 },
-  { name: "Utilities", emoji: "🔧", count: 3 },
-  { name: "Animations", emoji: "✨", count: 2 },
-  { name: "Data Fun", emoji: "📊", count: 2 },
+  { name: "Games", emoji: "🎮", count: 5 },
+  { name: "Creative Coding", emoji: "🎨", count: 5 },
+  { name: "Utilities", emoji: "🔧", count: 4 },
+  { name: "Animations", emoji: "✨", count: 3 },
+  { name: "Data Fun", emoji: "📊", count: 4 },
 ];
 
 export const languages = ["JavaScript", "Python", "C++", "HTML/CSS"];
@@ -434,5 +434,464 @@ for _ in range(50):
         if drops[i] > ROWS:
             drops[i] = random.randint(-5, 0)
     time.sleep(0.1)`,
+  },
+  {
+    id: "conway-life",
+    title: "Conway's Game of Life",
+    description: "Cellular automaton simulation with birth, survival, and death rules on a 2D grid",
+    category: "Games",
+    language: "JavaScript",
+    emoji: "🧬",
+    code: `const ROWS = 30, COLS = 30;
+let grid = Array.from({ length: ROWS }, () =>
+  Array.from({ length: COLS }, () => Math.random() > 0.7 ? 1 : 0)
+);
+
+function countNeighbors(g, r, c) {
+  let count = 0;
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      const nr = (r + dr + ROWS) % ROWS;
+      const nc = (c + dc + COLS) % COLS;
+      count += g[nr][nc];
+    }
+  }
+  return count;
+}
+
+function nextGen(g) {
+  return g.map((row, r) =>
+    row.map((cell, c) => {
+      const n = countNeighbors(g, r, c);
+      if (cell && (n === 2 || n === 3)) return 1;
+      if (!cell && n === 3) return 1;
+      return 0;
+    })
+  );
+}
+
+function render(g) {
+  return g.map(row =>
+    row.map(c => c ? "█" : "·").join("")
+  ).join("\\n");
+}
+
+for (let i = 0; i < 10; i++) {
+  console.log(\`Generation \${i}:\\n\${render(grid)}\\n\`);
+  grid = nextGen(grid);
+}`,
+  },
+  {
+    id: "mandelbrot",
+    title: "Mandelbrot Set Renderer",
+    description: "Generates an ASCII art Mandelbrot fractal with adjustable zoom and iterations",
+    category: "Creative Coding",
+    language: "Python",
+    emoji: "🌌",
+    code: `def mandelbrot(width=60, height=30, max_iter=80):
+    chars = " .:-=+*#%@"
+    x_min, x_max = -2.5, 1.0
+    y_min, y_max = -1.25, 1.25
+
+    for row in range(height):
+        line = ""
+        for col in range(width):
+            x0 = x_min + (x_max - x_min) * col / width
+            y0 = y_min + (y_max - y_min) * row / height
+            x, y, iteration = 0.0, 0.0, 0
+
+            while x*x + y*y <= 4 and iteration < max_iter:
+                x, y = x*x - y*y + x0, 2*x*y + y0
+                iteration += 1
+
+            idx = int(iteration / max_iter * (len(chars) - 1))
+            line += chars[idx]
+        print(line)
+
+mandelbrot()`,
+  },
+  {
+    id: "linked-list",
+    title: "Linked List with Full Operations",
+    description: "Complete linked list implementation with insert, delete, reverse, and cycle detection",
+    category: "Data Fun",
+    language: "JavaScript",
+    emoji: "🔗",
+    code: `class Node {
+  constructor(val) { this.val = val; this.next = null; }
+}
+
+class LinkedList {
+  constructor() { this.head = null; this.size = 0; }
+
+  push(val) {
+    const node = new Node(val);
+    node.next = this.head;
+    this.head = node;
+    this.size++;
+  }
+
+  reverse() {
+    let prev = null, curr = this.head;
+    while (curr) {
+      const next = curr.next;
+      curr.next = prev;
+      prev = curr;
+      curr = next;
+    }
+    this.head = prev;
+  }
+
+  hasCycle() {
+    let slow = this.head, fast = this.head;
+    while (fast?.next) {
+      slow = slow.next;
+      fast = fast.next.next;
+      if (slow === fast) return true;
+    }
+    return false;
+  }
+
+  toArray() {
+    const arr = [];
+    let curr = this.head;
+    while (curr) { arr.push(curr.val); curr = curr.next; }
+    return arr;
+  }
+}
+
+const list = new LinkedList();
+[5, 4, 3, 2, 1].forEach(v => list.push(v));
+console.log("Original:", list.toArray());
+list.reverse();
+console.log("Reversed:", list.toArray());
+console.log("Has cycle:", list.hasCycle());`,
+  },
+  {
+    id: "particle-system",
+    title: "Canvas Particle System",
+    description: "Physics-based particle engine with gravity, fade-out, and randomized velocities",
+    category: "Animations",
+    language: "JavaScript",
+    emoji: "💫",
+    code: `const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+canvas.width = 600; canvas.height = 400;
+
+class Particle {
+  constructor(x, y) {
+    this.x = x; this.y = y;
+    this.vx = (Math.random() - 0.5) * 6;
+    this.vy = (Math.random() - 0.5) * 6 - 2;
+    this.life = 1;
+    this.decay = 0.01 + Math.random() * 0.02;
+    this.radius = 2 + Math.random() * 3;
+    this.hue = Math.random() * 60 + 10;
+  }
+  update() {
+    this.vy += 0.05; // gravity
+    this.x += this.vx;
+    this.y += this.vy;
+    this.life -= this.decay;
+  }
+  draw(ctx) {
+    ctx.globalAlpha = this.life;
+    ctx.fillStyle = \`hsl(\${this.hue}, 100%, 60%)\`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+let particles = [];
+
+function emit(x, y, count = 30) {
+  for (let i = 0; i < count; i++)
+    particles.push(new Particle(x, y));
+}
+
+function loop() {
+  ctx.globalAlpha = 0.15;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.globalAlpha = 1;
+
+  particles.forEach(p => { p.update(); p.draw(ctx); });
+  particles = particles.filter(p => p.life > 0);
+
+  if (Math.random() < 0.1)
+    emit(Math.random() * canvas.width, canvas.height * 0.6);
+
+  requestAnimationFrame(loop);
+}
+loop();`,
+  },
+  {
+    id: "minimax-tictactoe",
+    title: "Tic-Tac-Toe AI (Minimax)",
+    description: "Unbeatable tic-tac-toe opponent using the minimax algorithm with optimal play",
+    category: "Games",
+    language: "Python",
+    emoji: "🤖",
+    code: `def print_board(b):
+    for i in range(0, 9, 3):
+        print(" | ".join(b[i:i+3]))
+        if i < 6: print("-" * 9)
+
+def winner(b):
+    lines = [(0,1,2),(3,4,5),(6,7,8),
+             (0,3,6),(1,4,7),(2,5,8),
+             (0,4,8),(2,4,6)]
+    for a, c, d in lines:
+        if b[a] == b[c] == b[d] != " ":
+            return b[a]
+    return None
+
+def minimax(b, is_max):
+    w = winner(b)
+    if w == "O": return 1
+    if w == "X": return -1
+    if " " not in b: return 0
+
+    scores = []
+    for i in range(9):
+        if b[i] == " ":
+            b[i] = "O" if is_max else "X"
+            scores.append(minimax(b, not is_max))
+            b[i] = " "
+    return max(scores) if is_max else min(scores)
+
+def best_move(b):
+    best, move = -2, 0
+    for i in range(9):
+        if b[i] == " ":
+            b[i] = "O"
+            score = minimax(b, False)
+            b[i] = " "
+            if score > best:
+                best, move = score, i
+    return move
+
+board = [" "] * 9
+board[4] = "X"  # Player goes center
+ai = best_move(board)
+board[ai] = "O"
+print(f"AI chose position {ai}")
+print_board(board)`,
+  },
+  {
+    id: "ray-marching",
+    title: "Ray Marching Sphere SDF",
+    description: "Signed distance field ray marcher rendering a 3D sphere with lighting in the terminal",
+    category: "Creative Coding",
+    language: "Python",
+    emoji: "🔮",
+    code: `import math
+
+W, H = 60, 30
+LIGHT = (1, -1, -1)
+mag = math.sqrt(sum(x*x for x in LIGHT))
+LIGHT = tuple(x/mag for x in LIGHT)
+
+def sdf_sphere(p, r=1.0):
+    return math.sqrt(sum(x*x for x in p)) - r
+
+def ray_march(ro, rd, steps=64):
+    t = 0.0
+    for _ in range(steps):
+        p = tuple(ro[i] + t * rd[i] for i in range(3))
+        d = sdf_sphere(p)
+        if d < 0.001:
+            return t, p
+        t += d
+        if t > 20: break
+    return None, None
+
+def normal(p, eps=0.001):
+    d = sdf_sphere(p)
+    n = tuple(
+        (sdf_sphere(tuple(
+            p[j] + (eps if i == j else 0) for j in range(3)
+        )) - d) / eps for i in range(3)
+    )
+    mag = math.sqrt(sum(x*x for x in n))
+    return tuple(x/mag for x in n)
+
+chars = " .:-=+*#%@"
+for y in range(H):
+    row = ""
+    for x in range(W):
+        uv = ((x / W) * 2 - 1, (y / H) * 2 - 1)
+        rd = (uv[0], -uv[1], -1.5)
+        m = math.sqrt(sum(v*v for v in rd))
+        rd = tuple(v/m for v in rd)
+        ro = (0, 0, 3)
+        t, p = ray_march(ro, rd)
+        if p:
+            n = normal(p)
+            diff = max(0, sum(n[i]*LIGHT[i] for i in range(3)))
+            row += chars[int(diff * (len(chars)-1))]
+        else:
+            row += " "
+    print(row)`,
+  },
+  {
+    id: "event-emitter",
+    title: "Event Emitter System",
+    description: "Publish-subscribe pattern implementation with once, on, off, and wildcard support",
+    category: "Utilities",
+    language: "JavaScript",
+    emoji: "📡",
+    code: `class EventEmitter {
+  constructor() { this.events = {}; }
+
+  on(event, fn) {
+    (this.events[event] ??= []).push({ fn, once: false });
+    return () => this.off(event, fn);
+  }
+
+  once(event, fn) {
+    (this.events[event] ??= []).push({ fn, once: true });
+  }
+
+  off(event, fn) {
+    this.events[event] = (this.events[event] || [])
+      .filter(l => l.fn !== fn);
+  }
+
+  emit(event, ...args) {
+    const listeners = this.events[event] || [];
+    const wildcards = this.events["*"] || [];
+    [...listeners, ...wildcards].forEach(l => {
+      l.fn(event, ...args);
+    });
+    this.events[event] = listeners.filter(l => !l.once);
+  }
+
+  listenerCount(event) {
+    return (this.events[event] || []).length;
+  }
+}
+
+const bus = new EventEmitter();
+bus.on("user:login", (evt, user) =>
+  console.log(\`✅ \${user} logged in\`)
+);
+bus.once("user:login", (evt, user) =>
+  console.log(\`🎉 Welcome first time, \${user}!\`)
+);
+bus.on("*", (evt) =>
+  console.log(\`📡 Event fired: \${evt}\`)
+);
+
+bus.emit("user:login", "Alice");
+bus.emit("user:login", "Bob");
+console.log("Listeners:", bus.listenerCount("user:login"));`,
+  },
+  {
+    id: "a-star-pathfinding",
+    title: "A* Pathfinding Algorithm",
+    description: "Grid-based shortest path finder with obstacles, heuristics, and visual path output",
+    category: "Data Fun",
+    language: "Python",
+    emoji: "🗺️",
+    code: `import heapq
+
+def a_star(grid, start, end):
+    rows, cols = len(grid), len(grid[0])
+    open_set = [(0, start)]
+    came_from = {}
+    g_score = {start: 0}
+
+    def h(pos):
+        return abs(pos[0]-end[0]) + abs(pos[1]-end[1])
+
+    while open_set:
+        _, current = heapq.heappop(open_set)
+        if current == end:
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.append(start)
+            return path[::-1]
+
+        for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:
+            nr, nc = current[0]+dr, current[1]+dc
+            neighbor = (nr, nc)
+            if 0<=nr<rows and 0<=nc<cols and grid[nr][nc]==0:
+                tentative = g_score[current] + 1
+                if tentative < g_score.get(neighbor, float('inf')):
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative
+                    heapq.heappush(open_set,
+                        (tentative + h(neighbor), neighbor))
+    return None
+
+grid = [
+    [0,0,0,1,0,0,0],
+    [0,1,0,1,0,1,0],
+    [0,1,0,0,0,1,0],
+    [0,0,1,1,0,0,0],
+    [1,0,0,0,1,0,0],
+]
+path = a_star(grid, (0,0), (4,6))
+for r in range(len(grid)):
+    row = ""
+    for c in range(len(grid[0])):
+        if (r,c) in path: row += "★ "
+        elif grid[r][c]: row += "█ "
+        else: row += "· "
+    print(row)
+print(f"Path length: {len(path)} steps")`,
+  },
+  {
+    id: "brainfuck-interpreter",
+    title: "Brainfuck Interpreter",
+    description: "Complete interpreter for the esoteric Brainfuck language with loop support and memory tape",
+    category: "Data Fun",
+    language: "JavaScript",
+    emoji: "🧠",
+    code: `function brainfuck(code, input = "") {
+  const tape = new Uint8Array(30000);
+  let ptr = 0, pc = 0, ic = 0;
+  let output = "";
+
+  // Pre-compute bracket matches
+  const jumps = {};
+  const stack = [];
+  for (let i = 0; i < code.length; i++) {
+    if (code[i] === "[") stack.push(i);
+    if (code[i] === "]") {
+      const j = stack.pop();
+      jumps[j] = i;
+      jumps[i] = j;
+    }
+  }
+
+  while (pc < code.length) {
+    switch (code[pc]) {
+      case ">": ptr++; break;
+      case "<": ptr--; break;
+      case "+": tape[ptr]++; break;
+      case "-": tape[ptr]--; break;
+      case ".": output += String.fromCharCode(tape[ptr]); break;
+      case ",": tape[ptr] = input.charCodeAt(ic++) || 0; break;
+      case "[": if (!tape[ptr]) pc = jumps[pc]; break;
+      case "]": if (tape[ptr]) pc = jumps[pc]; break;
+    }
+    pc++;
+  }
+  return output;
+}
+
+// "Hello World!" in Brainfuck
+const hello = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.";
+console.log("Output:", brainfuck(hello));
+
+// Fibonacci sequence
+const fib = "++++++++++>+>>>>++++++++++++++++++++++++++++++++++++++++++++>++++++++++++++++++++++++++++++++<<<<<<[>[>>>>>>+>+<<<<<<<-]>>>>>>>[<<<<<<<+>>>>>>>-]<[>++++++++++[-<-[>>+>+<<<-]>>>[<<<+>>>-]+<[>[-]<[-]]>[<<[>>>+<<<-]>>[-]]<<]>>>+<[-]<<[>+<-]>>[<<+>>-]<<<[>>+>+<<<-]>>>[<<<+>>>-]<[>++++++++++[-<-[>>+>+<<<-]>>>[<<<+>>>-]+<[>[-]<[-]]>[<<[>>>+<<<-]>>[-]]<<]>>>+<[-]<<[>+<-]>>[<<+>>-]<<<[>>+>+<<<-]>>>[<<<+>>>-]<[>+++++[-<.>]<[-]]<[-]]<<<<<<<]";
+console.log("Fib:", brainfuck(fib));`,
   },
 ];
